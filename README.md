@@ -33,10 +33,10 @@ config file. For the Nextcloud part, you might want to use a dedicated access
 token.
 
 
-Run the program a first time to ensure everything is running smooth:
+Run `icloud` program a first time to ensure everything is running smooth:
 
 ```bash
-cat config.ini | ./.venv/bin/python icloud_to_nextcloud.py
+./.venv/bin/icloud --username apple_username
 ```
 
 _Note:_ If you enabled 2FA on your Apple iCloud account, this first run will
