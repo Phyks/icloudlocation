@@ -106,7 +106,10 @@ def get_icloud_location(config):
             "Two-factor authentication required. "
             "Head over to http://localhost:8080 and fill-in the 2FA code."
         )
-        server = StoppableCherootServer(port=8080)
+        server = StoppableCherootServer(
+            host=config['webserver']['host'],
+            port=config['webserver']['port']
+        )
         app.run(server=server)
         result = api.validate_2fa_code(code_2fa)
         print("Code validation result: %s" % result)
