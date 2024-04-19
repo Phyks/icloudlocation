@@ -108,7 +108,7 @@ def get_icloud_location(config):
         )
         server = StoppableCherootServer(
             host=config['webserver']['host'],
-            port=config['webserver']['port']
+            port=int(config['webserver']['port'])
         )
         app.run(server=server)
         result = api.validate_2fa_code(code_2fa)

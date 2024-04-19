@@ -29,7 +29,10 @@ Beware that your credentials will be stored in plaintext. You might want to
 enable 2FA everywhere and only run it on a trusted machine/environment (disk
 encryption, etc.). `cat`ing config in the following commands is here to help
 you add an extra layer of security at rest (symmetric GPG, etc.) on your
-config file. For the Nextcloud part, you might want to use a dedicated access
+config file (beware, secret data will still be available to anyone having
+access to your files when your system is up).
+
+For the Nextcloud part, you might want to use a dedicated access
 token.
 
 
@@ -39,9 +42,12 @@ Run `icloud` program a first time to ensure everything is running smooth:
 ./.venv/bin/icloud --username apple_username
 ```
 
-_Note:_ If you enabled 2FA on your Apple iCloud account, this first run will
-be interactive and requires you explicitly trusting the session from one of
-your device.
+### Using 2FA
+
+If you enabled 2FA on your Apple iCloud account, the script will run a simple
+webserver and point you to the URL on localhost to pass it the 2FA code you
+will get from one of your iDevices. This makes the script trustable for some
+time and this operation is only required once in a while (every month or so).
 
 
 ## Usage
