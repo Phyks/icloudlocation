@@ -4,11 +4,81 @@ import logging
 import sys
 import urllib.parse
 
+import bottle
 import requests
 
 from pyicloud import PyiCloudService
 from requests.auth import HTTPBasicAuth
 
+
+class StoppableCherootServer(bottle.ServerAdapter):
+    """
+    We need a stoppable HTTP server, which can be stopped from within a route.
+
+    This is not doable out of the box in bottle and is quite hacky using plain
+    WSGIRef. This is easier and cleaner with Cheroot (formally CherryPy)
+    backend.
+    """
+    def run(self, handler):  # pragma: no cover
+        from cheroot import wsgi
+        self.options['bind_addr'] = (self.host, self.port)
+        self.options['wsgi_app'] = handler
+        self.server = wsgi.Server(**self.options)
+        try:
+            self.server.start()
+        finally:
+            self.server.stop()
+
+
+############################################
+# Web app to fetch 2FA code from the user. #
+############################################
+
+code_2fa = None  # Global for passing 2FA code from web app to main script
+app = bottle.Bottle()
+server = None
+
+
+@app.route('/')
+def get_2fa():
+    """
+    Main HTTP route, display an HTML form to fetch 2FA code from user.
+    """
+    return """
+    <!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <title>iCloud 2FA protection</title>
+</head>
+<body>
+    <form method="post" action="/2fa">
+        <p>
+            <label for="2FA">2FA password?</label>
+            <input type="text" id="2FA" name="2FA"/>
+        </p>
+        <input type="submit"/>
+    </form>
+</body>
+</html>"""
+
+
+@app.post('/2fa')
+def set_2fa():
+    """
+    Handle form submission and store 2FA code to pass along the rest of the
+    code.
+    """
+    global code_2fa
+    global server
+    code_2fa = bottle.request.forms.get('2FA')
+    server.server.stop()
+    return "OK"
+
+
+###############
+# Main script #
+###############
 
 def load_config(config_str=None):
     """
@@ -25,16 +95,20 @@ def get_icloud_location(config):
     """
     Fetch latest iPhone location from iCloud
     """
+    global server
+    global code_2fa
     email = config['apple']['email']
     password = config['apple']['password']
     api = PyiCloudService(email, password)
 
     if api.requires_2fa:
-        print("Two-factor authentication required.")
-        code = input(
-            "Enter the code you received of one of your approved devices: "
+        print(
+            "Two-factor authentication required. "
+            "Head over to http://localhost:8080 and fill-in the 2FA code."
         )
-        result = api.validate_2fa_code(code)
+        server = StoppableCherootServer(port=8080)
+        app.run(server=server)
+        result = api.validate_2fa_code(code_2fa)
         print("Code validation result: %s" % result)
 
         if not result:
@@ -92,6 +166,10 @@ def store_location_in_nextcloud(config, iphone_location, iphone_status):
     """
     Store provided iPhone location to Nextcloud.
     """
+    if iphone_location is None:
+        print('Could not retrieved iPhone location. Try again.')
+        sys.exit(1)
+
     nextcloud_location_args = {
         "user_agent": iphone_status['name'],
         "lat": iphone_location['latitude'],
