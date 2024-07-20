@@ -99,12 +99,12 @@ def get_icloud_location(config):
     global code_2fa
     email = config['apple']['email']
     password = config['apple']['password']
-    api = PyiCloudService(email, password)
+    api = PyiCloudService(email, password=password, cookie_directory=config['apple']['cookie_directory'])
 
     if api.requires_2fa:
         print(
             "Two-factor authentication required. "
-            "Head over to http://localhost:8080 and fill-in the 2FA code."
+            f"Head over to http://{config['webserver']['host']}:{config['webserver']['port']} and fill-in the 2FA code."
         )
         server = StoppableCherootServer(
             host=config['webserver']['host'],
