@@ -44,10 +44,18 @@ Run `icloud` program a first time to ensure everything is running smooth:
 
 ### Using 2FA
 
-If you enabled 2FA on your Apple iCloud account, the script will run a simple
-webserver and point you to the URL on localhost to pass it the 2FA code you
-will get from one of your iDevices. This makes the script trustable for some
-time and this operation is only required once in a while (every month or so).
+If you enabled 2FA on your Apple iCloud account, you can request the 2FA code
+beforehand by :
+If your device is online:
+    Go to Settings > [your name].
+    Tap Sign-In & Security > Two Factor Authentication.
+    Tap Get Verification Code
+If your device is offline: 
+    Go to Settings > [your name].
+    Tap Sign-In & Security.
+    A message says "Account Details Unavailable." Tap Get Verification Code.
+Put this 2FA code in the config.ini file, you have one minute to run the command line in the next section.
+
 
 
 ## Usage
