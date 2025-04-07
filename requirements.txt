@@ -1,1 +1,1 @@
-pyicloud
+git+https://github.com/timlaing/pyicloud

@@ -76,10 +76,10 @@ def get_icloud_location(config):
 
     iphone = next(
             device
-            for device in api.devices
+            for device in api.devices.values()
             if config['apple']['iPhone_name'] in device.status()['name']
         )
-    iphone_location = iphone.location()
+    iphone_location = iphone.location
     iphone_status = iphone.status()
 
     return iphone_location, iphone_status
