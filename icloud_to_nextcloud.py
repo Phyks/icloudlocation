@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import argparse
 import configparser
 import logging
 import sys
@@ -31,14 +32,15 @@ def get_icloud_location(config):
     """
     email = config['apple']['email']
     password = config['apple']['password']
-    code_2fa = config['apple']['code_2fa']
+    code_2fa = config['apple'].get('code_2fa')
     
     api = PyiCloudService(email, password=password, cookie_directory=config['apple']['cookie_directory'])
 
     if api.requires_2fa:
         print("Two-factor authentication required.")
-        code = code_2fa
-        result = api.validate_2fa_code(code)
+        if not code_2fa:
+            code_2fa = input('code_2fa?')
+        result = api.validate_2fa_code(code_2fa)
         print("Code validation result: %s" % result)
 
         if not result:
@@ -129,7 +131,16 @@ def store_location_in_nextcloud(config, iphone_location, iphone_status):
 
 
 if __name__ == '__main__':
+    parser = argparse.ArgumentParser(prog='icloud2Nextcloud')
+    parser.add_argument('--config')
+    args = parser.parse_args()
+
+    config_str = None
+    if args.config is not None:
+        with open(args.config, 'r') as fh:
+            config_str = fh.read()
+
     logging.basicConfig(level=logging.INFO)
-    config = load_config()
+    config = load_config(config_str)
     iphone_location, iphone_status = get_icloud_location(config)
     store_location_in_nextcloud(config, iphone_location, iphone_status)
