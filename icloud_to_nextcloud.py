@@ -40,6 +40,7 @@ def get_icloud_location(config):
     if api.requires_2fa:
         print("Two-factor authentication required.")
         if not code_2fa:
+            api.request_2fa_code()
             code_2fa = input("code_2fa?")
         result = api.validate_2fa_code(code_2fa)
         print("Code validation result: %s" % result)
