@@ -1,10 +1,10 @@
-iCloud to Nextcloud
-===================
+iCloud to self-host location backend
+====================================
 
 Apple iCloud "Find My" only lets you see your latest position, but sometimes
 you want to scroll back in time and find previous positions. This scripts
 autoamtically scrapes your iPhone location from iCloud and stores it in
-Nextcloud, so that you get access to the full history.
+Nextcloud Maps/Dawarich, so that you get access to the full history.
 
 
 ## Installation
@@ -32,7 +32,7 @@ you add an extra layer of security at rest (symmetric GPG, etc.) on your
 config file (beware, secret data will still be available to anyone having
 access to your files when your system is up).
 
-For the Nextcloud part, you might want to use a dedicated access
+For the Nextcloud/Dawarich part, you might want to use a dedicated access
 token.
 
 
