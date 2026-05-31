@@ -136,6 +136,33 @@ def store_location_in_nextcloud(config, iphone_location, iphone_status):
     r.raise_for_status()
 
 
+def store_location_in_dawarich(config, iphone_location, iphone_status):
+    """
+    Store provided iPhone location to Dawarich.
+    """
+    if iphone_location is None:
+        print("Could not retrieved iPhone location. Try again.")
+        sys.exit(1)
+
+    dawarich_location_data = {
+        "tid": iphone_status["name"],
+        "lat": iphone_location["latitude"],
+        "lon": iphone_location["longitude"],
+        "acc": iphone_location["horizontalAccuracy"],
+        "tst": iphone_location["timeStamp"] // 1000,
+        "alt": iphone_location["altitude"],
+        "batt": iphone_status["batteryLevel"],
+        "_type": "location"
+    }
+    logging.info("Got location data from iCloud: %s.", dawarich_location_data)
+    r = requests.post(
+        urllib.parse.urljoin(config["dawarich"]["server"], "/api/v1/owntracks/points"),
+        params={"api_key": config["dawarich"]["api_key"]},
+        json=dawarich_location_data,
+    )
+    r.raise_for_status()
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(prog="icloud2Nextcloud")
     parser.add_argument("--config")
@@ -149,4 +176,9 @@ if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
     config = load_config(config_str)
     iphone_location, iphone_status = get_icloud_location(config)
-    store_location_in_nextcloud(config, iphone_location, iphone_status)
+    if "nextcloud" in config:
+        store_location_in_nextcloud(config, iphone_location, iphone_status)
+    elif "dawarich" in config:
+        store_location_in_dawarich(config, iphone_location, iphone_status)
+    else:
+        sys.exit("No storage provided")

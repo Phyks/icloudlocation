@@ -61,7 +61,7 @@ Put this 2FA code in the config.ini file, you have one minute to run the command
 ## Usage
 
 ```bash
-cat config.ini | ./.venv/bin/python icloud_to_nextcloud.py
+cat config.ini | ./.venv/bin/python post_icloud_location.py
 ```
 
 Use a `cron` daemon to run it periodically at the frequency of your choice.
